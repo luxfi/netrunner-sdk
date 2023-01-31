@@ -1,1 +1,1 @@
-# avalanche-network-runner-sdk
+# netrunner-sdk
