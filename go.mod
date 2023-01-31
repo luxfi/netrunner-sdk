@@ -1,4 +1,4 @@
-module github.com/ava-labs/avalanche-network-runner-sdk
+module github.com/luxdefi/netrunner-sdk
 
 go 1.18
 
