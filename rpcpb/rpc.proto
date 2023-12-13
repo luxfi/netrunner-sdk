@@ -152,7 +152,7 @@ message StartRequest {
   // e.g., ids.ToID(hashing.ComputeHash256("subnetevm")).String()
   // e.g., subnet-cli create VMID subnetevm
   //
-  // If this field is set to none (by default), the node/network-runner
+  // If this field is set to none (by default), the node/netrunner
   // does not install the custom chain and does not create the subnet,
   // even if the VM binary exists on the local plugins directory.
   repeated BlockchainSpec blockchain_specs = 7;
@@ -200,7 +200,7 @@ message CreateBlockchainsRequest {
   // e.g., ids.ToID(hashing.ComputeHash256("subnetevm")).String()
   // e.g., subnet-cli create VMID subnetevm
   //
-  // If this field is set to none (by default), the node/network-runner
+  // If this field is set to none (by default), the node/netrunner
   // will return error
   repeated BlockchainSpec blockchain_specs = 1;
 }

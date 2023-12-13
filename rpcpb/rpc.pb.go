@@ -534,7 +534,7 @@ type StartRequest struct {
 	// e.g., ids.ToID(hashing.ComputeHash256("subnetevm")).String()
 	// e.g., subnet-cli create VMID subnetevm
 	//
-	// If this field is set to none (by default), the node/network-runner
+	// If this field is set to none (by default), the node/netrunner
 	// does not install the custom chain and does not create the subnet,
 	// even if the VM binary exists on the local plugins directory.
 	BlockchainSpecs   []*BlockchainSpec `protobuf:"bytes,7,rep,name=blockchain_specs,json=blockchainSpecs,proto3" json:"blockchain_specs,omitempty"`
@@ -811,7 +811,7 @@ type CreateBlockchainsRequest struct {
 	// e.g., ids.ToID(hashing.ComputeHash256("subnetevm")).String()
 	// e.g., subnet-cli create VMID subnetevm
 	//
-	// If this field is set to none (by default), the node/network-runner
+	// If this field is set to none (by default), the node/netrunner
 	// will return error
 	BlockchainSpecs []*BlockchainSpec `protobuf:"bytes,1,rep,name=blockchain_specs,json=blockchainSpecs,proto3" json:"blockchain_specs,omitempty"`
 }
