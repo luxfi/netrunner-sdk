@@ -2,7 +2,7 @@
 // See the file LICENSE for licensing terms.
 
 // Package netrunner-sdk implements client.
-// Copied from https://github.com/luxdefi/netrunner/blob/v1.3.0/client/client.go
+// Copied from https://github.com/luxfi/netrunner/blob/v1.3.0/client/client.go
 // except "local.DefaultNumNodes" and "logging.Logger"
 package netrunner_sdk
 
@@ -14,9 +14,9 @@ import (
 	"sync"
 	"time"
 
-	"github.com/luxdefi/netrunner-sdk/pkg/color"
-	"github.com/luxdefi/netrunner-sdk/pkg/logutil"
-	"github.com/luxdefi/netrunner-sdk/rpcpb"
+	"github.com/luxfi/netrunner-sdk/pkg/color"
+	"github.com/luxfi/netrunner-sdk/pkg/logutil"
+	"github.com/luxfi/netrunner-sdk/rpcpb"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"

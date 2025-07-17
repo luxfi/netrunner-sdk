@@ -1,9 +1,9 @@
-// Copied from https://github.com/luxdefi/netrunner/blob/v1.3.0/rpcpb/rpc.proto
+// Copied from https://github.com/luxfi/netrunner/blob/v1.3.0/rpcpb/rpc.proto
 // without gRPC gateway dependency
 
 syntax = "proto3";
 
-option go_package = "github.com/luxdefi/netrunner;rpcpb";
+option go_package = "github.com/luxfi/netrunner;rpcpb";
 
 package rpcpb;
 

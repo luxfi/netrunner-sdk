@@ -1,4 +1,4 @@
-module github.com/luxdefi/netrunner-sdk
+module github.com/luxfi/netrunner-sdk
 
 go 1.18
 
