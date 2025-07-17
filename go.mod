@@ -1,6 +1,6 @@
 module github.com/luxfi/netrunner-sdk
 
-go 1.18
+go 1.22
 
 require (
 	github.com/onsi/ginkgo/v2 v2.4.0
