@@ -14,10 +14,9 @@ import (
 	"sync"
 	"time"
 
+	"github.com/luxfi/log"
 	"github.com/luxfi/netrunner-sdk/pkg/color"
-	"github.com/luxfi/netrunner-sdk/pkg/logutil"
 	"github.com/luxfi/netrunner-sdk/rpcpb"
-	"go.uber.org/zap"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/credentials/insecure"
@@ -67,13 +66,8 @@ type client struct {
 }
 
 func New(cfg Config) (Client, error) {
-	lcfg := logutil.GetDefaultZapLoggerConfig()
-	lcfg.Level = zap.NewAtomicLevelAt(logutil.ConvertToZapLevel(cfg.LogLevel))
-	logger, err := lcfg.Build()
-	if err != nil {
-		return nil, err
-	}
-	_ = zap.ReplaceGlobals(logger)
+	// TODO: Update log level setting once log package API is available
+	// Currently the log package doesn't expose SetLogLevel
 
 	color.Outf("{{blue}}dialing endpoint %q{{/}}\n", cfg.Endpoint)
 	ctx, cancel := context.WithTimeout(context.Background(), cfg.DialTimeout)
@@ -98,7 +92,7 @@ func New(cfg Config) (Client, error) {
 }
 
 func (c *client) Ping(ctx context.Context) (*rpcpb.PingResponse, error) {
-	zap.L().Info("ping")
+	log.Info("ping")
 
 	// ref. https://grpc-ecosystem.github.io/grpc-gateway/docs/tutorials/adding_annotations/
 	// curl -X POST -k http://localhost:8081/v1/ping -d ''
@@ -135,7 +129,7 @@ func (c *client) Start(ctx context.Context, execPath string, opts ...OpOption) (
 	req.ReassignPortsIfUsed = &ret.reassignPortsIfUsed
 	req.DynamicPorts = &ret.dynamicPorts
 
-	zap.L().Info("start")
+	log.Info("start")
 	return c.controlc.Start(ctx, req)
 }
 
@@ -144,7 +138,7 @@ func (c *client) CreateBlockchains(ctx context.Context, blockchainSpecs []*rpcpb
 		BlockchainSpecs: blockchainSpecs,
 	}
 
-	zap.L().Info("create blockchains")
+	log.Info("create blockchains")
 	return c.controlc.CreateBlockchains(ctx, req)
 }
 
@@ -158,17 +152,17 @@ func (c *client) CreateSubnets(ctx context.Context, opts ...OpOption) (*rpcpb.Cr
 		req.NumSubnets = &ret.numSubnets
 	}
 
-	zap.L().Info("create subnets")
+	log.Info("create subnets")
 	return c.controlc.CreateSubnets(ctx, req)
 }
 
 func (c *client) Health(ctx context.Context) (*rpcpb.HealthResponse, error) {
-	zap.L().Info("health")
+	log.Info("health")
 	return c.controlc.Health(ctx, &rpcpb.HealthRequest{})
 }
 
 func (c *client) URIs(ctx context.Context) ([]string, error) {
-	zap.L().Info("uris")
+	log.Info("uris")
 	resp, err := c.controlc.URIs(ctx, &rpcpb.URIsRequest{})
 	if err != nil {
 		return nil, err
@@ -177,7 +171,7 @@ func (c *client) URIs(ctx context.Context) ([]string, error) {
 }
 
 func (c *client) Status(ctx context.Context) (*rpcpb.StatusResponse, error) {
-	zap.L().Info("status")
+	log.Info("status")
 	return c.controlc.Status(ctx, &rpcpb.StatusRequest{})
 }
 
@@ -192,10 +186,12 @@ func (c *client) StreamStatus(ctx context.Context, pushInterval time.Duration) (
 	ch := make(chan *rpcpb.ClusterInfo, 1)
 	go func() {
 		defer func() {
-			zap.L().Debug("closing stream send", zap.Error(stream.CloseSend()))
+			if err := stream.CloseSend(); err != nil {
+				log.Debug("closing stream send", "error", err)
+			}
 			close(ch)
 		}()
-		zap.L().Info("start receive routine")
+		log.Info("start receive routine")
 		for {
 			select {
 			case <-ctx.Done():
@@ -214,13 +210,13 @@ func (c *client) StreamStatus(ctx context.Context, pushInterval time.Duration) (
 			}
 
 			if errors.Is(err, io.EOF) {
-				zap.L().Debug("received EOF from client; returning to close the stream from server side")
+				log.Debug("received EOF from client; returning to close the stream from server side")
 				return
 			}
 			if isClientCanceled(stream.Context().Err(), err) {
-				zap.L().Warn("failed to receive status request from gRPC stream due to client cancellation", zap.Error(err))
+				log.Warn("failed to receive status request from gRPC stream due to client cancellation", "error", err)
 			} else {
-				zap.L().Warn("failed to receive status request from gRPC stream", zap.Error(err))
+				log.Warn("failed to receive status request from gRPC stream", "error", err)
 			}
 			return
 		}
@@ -229,7 +225,7 @@ func (c *client) StreamStatus(ctx context.Context, pushInterval time.Duration) (
 }
 
 func (c *client) Stop(ctx context.Context) (*rpcpb.StopResponse, error) {
-	zap.L().Info("stop")
+	log.Info("stop")
 	return c.controlc.Stop(ctx, &rpcpb.StopRequest{})
 }
 
@@ -245,12 +241,12 @@ func (c *client) AddNode(ctx context.Context, name string, execPath string, opts
 		UpgradeConfigs: ret.upgradeConfigs,
 	}
 
-	zap.L().Info("add node", zap.String("name", name))
+	log.Info("add node", "name", name)
 	return c.controlc.AddNode(ctx, req)
 }
 
 func (c *client) RemoveNode(ctx context.Context, name string) (*rpcpb.RemoveNodeResponse, error) {
-	zap.L().Info("remove node", zap.String("name", name))
+	log.Info("remove node", "name", name)
 	return c.controlc.RemoveNode(ctx, &rpcpb.RemoveNodeRequest{Name: name})
 }
 
@@ -268,17 +264,17 @@ func (c *client) RestartNode(ctx context.Context, name string, opts ...OpOption)
 	req.ChainConfigs = ret.chainConfigs
 	req.UpgradeConfigs = ret.upgradeConfigs
 
-	zap.L().Info("restart node", zap.String("name", name))
+	log.Info("restart node", "name", name)
 	return c.controlc.RestartNode(ctx, req)
 }
 
 func (c *client) AttachPeer(ctx context.Context, nodeName string) (*rpcpb.AttachPeerResponse, error) {
-	zap.L().Info("attaching peer", zap.String("name", nodeName))
+	log.Info("attaching peer", "name", nodeName)
 	return c.controlc.AttachPeer(ctx, &rpcpb.AttachPeerRequest{NodeName: nodeName})
 }
 
 func (c *client) SendOutboundMessage(ctx context.Context, nodeName string, peerID string, op uint32, msgBody []byte) (*rpcpb.SendOutboundMessageResponse, error) {
-	zap.L().Info("sending outbound message", zap.String("name", nodeName), zap.String("peer-ID", peerID))
+	log.Info("sending outbound message", "name", nodeName, "peer-ID", peerID)
 	return c.controlc.SendOutboundMessage(ctx, &rpcpb.SendOutboundMessageRequest{
 		NodeName: nodeName,
 		PeerId:   peerID,
@@ -288,12 +284,12 @@ func (c *client) SendOutboundMessage(ctx context.Context, nodeName string, peerI
 }
 
 func (c *client) SaveSnapshot(ctx context.Context, snapshotName string) (*rpcpb.SaveSnapshotResponse, error) {
-	zap.L().Info("save snapshot", zap.String("snapshot-name", snapshotName))
+	log.Info("save snapshot", "snapshot-name", snapshotName)
 	return c.controlc.SaveSnapshot(ctx, &rpcpb.SaveSnapshotRequest{SnapshotName: snapshotName})
 }
 
 func (c *client) LoadSnapshot(ctx context.Context, snapshotName string, opts ...OpOption) (*rpcpb.LoadSnapshotResponse, error) {
-	zap.L().Info("load snapshot", zap.String("snapshot-name", snapshotName))
+	log.Info("load snapshot", "snapshot-name", snapshotName)
 	ret := &Op{}
 	ret.applyOpts(opts)
 	req := rpcpb.LoadSnapshotRequest{
@@ -318,12 +314,12 @@ func (c *client) LoadSnapshot(ctx context.Context, snapshotName string, opts ...
 }
 
 func (c *client) RemoveSnapshot(ctx context.Context, snapshotName string) (*rpcpb.RemoveSnapshotResponse, error) {
-	zap.L().Info("remove snapshot", zap.String("snapshot-name", snapshotName))
+	log.Info("remove snapshot", "snapshot-name", snapshotName)
 	return c.controlc.RemoveSnapshot(ctx, &rpcpb.RemoveSnapshotRequest{SnapshotName: snapshotName})
 }
 
 func (c *client) GetSnapshotNames(ctx context.Context) ([]string, error) {
-	zap.L().Info("get snapshot names")
+	log.Info("get snapshot names")
 	resp, err := c.controlc.GetSnapshotNames(ctx, &rpcpb.GetSnapshotNamesRequest{})
 	if err != nil {
 		return nil, err
