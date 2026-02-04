@@ -12,12 +12,12 @@ import (
 // Outputs to stdout.
 //
 // e.g.,
-//   Out("{{green}}{{bold}}hi there %q{{/}}", "aa")
-//   Out("{{magenta}}{{bold}}hi therea{{/}} {{cyan}}{{underline}}b{{/}}")
+//
+//	Out("{{green}}{{bold}}hi there %q{{/}}", "aa")
+//	Out("{{magenta}}{{bold}}hi therea{{/}} {{cyan}}{{underline}}b{{/}}")
 //
 // ref.
 // https://github.com/onsi/ginkgo/blob/v2.0.0/formatter/formatter.go#L52-L73
-//
 func Outf(format string, args ...interface{}) {
 	s := formatter.F(format, args...)
 	fmt.Fprint(formatter.ColorableStdOut, s)

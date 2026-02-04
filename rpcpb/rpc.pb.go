@@ -277,7 +277,7 @@ func (x *CustomChainInfo) GetVmId() string {
 	return ""
 }
 
-func (x *CustomChainInfo) GetSubnetId() string {
+func (x *CustomChainInfo) GetChainId() string {
 	if x != nil {
 		return x.SubnetId
 	}
@@ -746,7 +746,7 @@ func (x *BlockchainSpec) GetGenesis() string {
 	return ""
 }
 
-func (x *BlockchainSpec) GetSubnetId() string {
+func (x *BlockchainSpec) GetChainId() string {
 	if x != nil && x.SubnetId != nil {
 		return *x.SubnetId
 	}
