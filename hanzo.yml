@@ -1,0 +1,5 @@
+test:
+  - name: build
+    run: go build ./...
+  - name: unit
+    run: go test ./... -count=1
