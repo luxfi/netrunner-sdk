@@ -1,5 +1,6 @@
+# This module ships no tests, so compiling is the whole gate. A `unit` step
+# would only ever print "[no test files]" — a gate that reads as one and runs
+# as nothing, which the reusable refuses on purpose.
 test:
   - name: build
     run: go build ./...
-  - name: unit
-    run: go test ./... -count=1
