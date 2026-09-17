@@ -18,28 +18,28 @@ import (
 //
 // ref.
 // https://github.com/onsi/ginkgo/blob/v2.0.0/formatter/formatter.go#L52-L73
-func Outf(format string, args ...interface{}) {
+func Outf(format string, args ...any) {
 	s := formatter.F(format, args...)
 	fmt.Fprint(formatter.ColorableStdOut, s)
 }
 
 // Outputs to stderr.
-func Errf(format string, args ...interface{}) {
+func Errf(format string, args ...any) {
 	s := formatter.F(format, args...)
 	fmt.Fprint(formatter.ColorableStdErr, s)
 }
 
-func Greenf(format string, args ...interface{}) {
+func Greenf(format string, args ...any) {
 	f := fmt.Sprintf("{{green}}%s{{/}}", format)
 	Outf(f, args...)
 }
 
-func Redf(format string, args ...interface{}) {
+func Redf(format string, args ...any) {
 	f := fmt.Sprintf("{{red}}%s{{/}}", format)
 	Outf(f, args...)
 }
 
-func Bluef(format string, args ...interface{}) {
+func Bluef(format string, args ...any) {
 	f := fmt.Sprintf("{{blue}}%s{{/}}", format)
 	Outf(f, args...)
 }
